@@ -29,6 +29,7 @@ namespace LSS_Host_Module.UI
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Hide();
+
         }
 
         private void btnSave_Click(object sender, EventArgs e)

@@ -20,13 +20,15 @@ namespace LSS_Host_Module.Manager
         {
             GetVersion = 0,
             Ping = 1,
-            DAC_MCP4725_SetVoltage = 2,
+            DAC_MCP4725_SignalGeneratorSetParams = 2,
+            DAC_MCP4725_SignalGeneratorGetParams = 3,
             Error = 255,
         }
 
         private Task _keepAliveTask { get; set; }
         private bool _isClosing { get; set; }
         private SerialPort _serialPort { get; set; }
+        private ManualResetEvent _communicationLock;
 
         public event Action<bool> OnConnectionStatusChanged = delegate { };
         public bool IsConnected {get;set;}
@@ -35,6 +37,7 @@ namespace LSS_Host_Module.Manager
         {
             _serialPort = new SerialPort();
             IsConnected = false;
+            _communicationLock = new ManualResetEvent(true);
         }
 
         public void Open(string port)
@@ -110,33 +113,61 @@ namespace LSS_Host_Module.Manager
             string[] returnData = WriteCommand(Commands.Ping, new float[4] { 100.0f, 200.0f, 0.1456f, 2687.145678f });
         }
 
-        public void DAC_MCP4725_SetVoltage(float voltage)
+        public void DAC_MCP4725_SignalGeneratorSetParams(int amplitude, int period, int iterations, int wave_type, bool isON)
         {
-            string[] response = WriteCommand(Commands.DAC_MCP4725_SetVoltage, new float[1] { voltage });
+            string[] response = WriteCommand(Commands.DAC_MCP4725_SignalGeneratorSetParams, new float[5] { (float)amplitude, (float)period, (float)iterations, (float)wave_type, isON? 1 : -1 });
+        }
+
+        public void DAC_MCP4725_SignalGeneratorGetParams(out int amplitude, out int period, out int iterations, out int wave_type, out bool isON)
+        {
+            amplitude = 0;
+            period = 0;
+            iterations = 0;
+            wave_type = 0;
+            isON = false;
+            string[] response = WriteCommand(Commands.DAC_MCP4725_SignalGeneratorGetParams, new float[0]);
+            amplitude = (int)float.Parse(response[0]);
+            period = (int)float.Parse(response[1]);
+            iterations = (int)float.Parse(response[2]);
+            wave_type = (int)float.Parse(response[3]);
+            isON =      float.Parse(response[4]) > 0 ? true : false;
         }
 
         private string[] WriteCommand(Commands command, float[] parameters)
         {
-            if (!_serialPort.IsOpen)
-                throw new ApplicationException("Failed to write command, serial port is disconnected");
+            try
+            {
+                _communicationLock.WaitOne(cnstTimeOut);
+                _communicationLock.Reset();
+                if (!_serialPort.IsOpen)
+                    throw new ApplicationException("Failed to write command, serial port is disconnected");
 
-            int paramsCount = (parameters == null) ? 0 : parameters.Length;
-            string commandString = string.Format("{0}{1}{2}{3}", cnstSTX, (int)command, cnstRS, paramsCount);
-            if (paramsCount > 0)
-            {
-                foreach(float parameter in parameters)
+                int paramsCount = (parameters == null) ? 0 : parameters.Length;
+                string commandString = string.Format("{0}{1}{2}{3}", cnstSTX, (int)command, cnstRS, paramsCount);
+                if (paramsCount > 0)
                 {
-                    commandString += cnstRS;
-                    commandString += parameter.ToString();
+                    foreach (float parameter in parameters)
+                    {
+                        commandString += cnstRS;
+                        commandString += parameter.ToString();
+                    }
                 }
+                commandString += cnstETX;
+                do
+                {
+                    commandString += " ";
+                } while (commandString.Length < cnstMessageLength);
+                _serialPort.Write(commandString);
+                return ReadCommandResponce(command);
             }
-            commandString += cnstETX;
-            do
+            catch(Exception ex)
             {
-                commandString += " ";
-            }while (commandString.Length < cnstMessageLength);
-            _serialPort.Write(commandString);
-            return ReadCommandResponce(command);
+                throw ex;
+            }
+            finally
+            {
+                _communicationLock.Set();
+            }
         }
 
         /// <summary>

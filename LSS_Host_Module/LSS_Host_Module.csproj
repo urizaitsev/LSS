@@ -49,6 +49,11 @@
     <Compile Include="Flow\FlowMain.cs" />
     <Compile Include="Manager\AduinoBoard.cs" />
     <Compile Include="Manager\ManagerMain.cs" />
+    <Compile Include="Resource1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
     <Compile Include="singleton.cs" />
     <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
@@ -65,6 +70,10 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\UIMain.cs" />
+    <EmbeddedResource Include="Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -76,6 +85,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="UI\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
@@ -93,7 +103,24 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\SquareWaveImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Saw1WaveImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Saw2WaveImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Saw3WaveImage.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DCWaveImage.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SinusWaveImage.bmp" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
