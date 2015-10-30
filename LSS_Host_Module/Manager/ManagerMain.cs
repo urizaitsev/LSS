@@ -19,7 +19,14 @@ namespace LSS_Host_Module.Manager
 
         public void Init()
         {
-            HWControllerObject.Open(FlowMain.Instance.DataMainObject.Data.HWController_PortName);
+            try
+            {
+                HWControllerObject.Open(FlowMain.Instance.DataMainObject.Data.HWController_PortName);
+            }
+            catch(Exception)
+            {
+
+            }
         }
 
         public void Close()

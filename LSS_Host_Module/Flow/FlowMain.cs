@@ -44,12 +44,53 @@ namespace LSS_Host_Module.Flow
             UIMainObject.OnSettingsSaved += UIMainObject_OnSettingsSaved;
 
             UIMainObject.OnSignalGeneratorChanged += UIMainObject_OnSignalGeneratorChanged;
+            UIMainObject.OnSignalGeneratorGetMaximumRange += UIMainObject_OnSignalGeneratorGetMaximumRange;
         }
 
-        void UIMainObject_OnSignalGeneratorChanged(int amplitude, int period, int iterations, int wave_type, bool isON)
+        double UIMainObject_OnSignalGeneratorGetMaximumRange(SignalGeneratorControl.AOTypeEnum AOType)
         {
+            double value = double.NaN;
+            switch(AOType)
+            {
+                case SignalGeneratorControl.AOTypeEnum.Voltage:
+                    value = DataMainObject.Data.LaserDriver_MaxControlVoltage;
+                    break;
+
+                case SignalGeneratorControl.AOTypeEnum.Current:
+                    value = DataMainObject.Data.LaserDriver_MaxOutputCurrent;
+                    break;
+
+                case SignalGeneratorControl.AOTypeEnum.CW:
+                    value = DataMainObject.Data.LaserDiode_MaxPower;
+                    break;
+            }
+            return value;
+        }
+
+        void UIMainObject_OnSignalGeneratorChanged(SignalGeneratorControl.AOTypeEnum AOType, double amplitude, int period, int iterations, int wave_type, bool isON)
+        {
+            //calculate value
+            int DAC_Value = (int)amplitude;
+            switch(AOType)
+            {
+                case SignalGeneratorControl.AOTypeEnum.Voltage:
+                    DAC_Value = (int)amplitude;
+                    break;
+
+                case SignalGeneratorControl.AOTypeEnum.Current:
+                    DAC_Value = (int)((amplitude / DataMainObject.Data.LaserDriver_MaxOutputCurrent) * DataMainObject.Data.LaserDriver_MaxControlVoltage);
+                    break;
+
+                case SignalGeneratorControl.AOTypeEnum.CW:
+                    //calculate current value
+                    double slopeCurrent = DataMainObject.Data.LaserDiode_MaxCurrent - DataMainObject.Data.LaserDiode_Ith;
+                    double driverCurrent = DataMainObject.Data.LaserDiode_Ith + ((amplitude / DataMainObject.Data.LaserDiode_MaxPower) * slopeCurrent);
+                    DAC_Value = (int)((driverCurrent / DataMainObject.Data.LaserDriver_MaxOutputCurrent) * DataMainObject.Data.LaserDriver_MaxControlVoltage);
+                    break;
+            }
+
             //send command to controller
-            ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorSetParams(amplitude, period, iterations, wave_type, isON);
+            ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorSetParams(DAC_Value, period, iterations, wave_type, isON);
 
             //start/stop task
             if (isON)

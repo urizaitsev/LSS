@@ -17,21 +17,28 @@ namespace LSS_Host_Module.UI
 
         public void ShowSettings(object data)
         {
-
-            _UIContext.Send((object state) =>
+            if (_UIContext != null)
+            {
+                _UIContext.Send((object state) =>
                 {
                     this._settingsForm.Show(data);
                 }, null);
+
+            }
         }
 
         public bool ShowMainTab
         {
             set
             {
-                _UIContext.Send((object state) =>
+                if (_UIContext != null)
                 {
-                    _mainForm.MainTab.Visible = value;
-                }, null);     
+                    _UIContext.Send((object state) =>
+                    {
+                        _mainForm.MainTab.Visible = value;
+                    }, null);     
+
+                }
             }
         }
 
@@ -39,7 +46,8 @@ namespace LSS_Host_Module.UI
         public event Action OnFileMenu_Settings = delegate { };
         public event Action OnSettingsSaved = delegate { };
 
-        public event Action<int, int, int, int, bool> OnSignalGeneratorChanged = delegate { };
+        public event Action<SignalGeneratorControl.AOTypeEnum, double, int, int, int, bool> OnSignalGeneratorChanged = delegate { };
+        public event Func<SignalGeneratorControl.AOTypeEnum, double> OnSignalGeneratorGetMaximumRange = delegate { return 1000; };
 
         public UIMain()
         {
@@ -49,11 +57,17 @@ namespace LSS_Host_Module.UI
             _mainForm.OnFileMenu_Exit += () => OnFileMenu_Exit();
             _mainForm.OnFileMenu_Settings += () => OnFileMenu_Settings();
 
-            _mainForm.OnSignalGeneratorChanged +=
-                (int AO_Amplitude, int AO_Period, int AO_Iterations, int AO_WaveType, bool isStart) =>
+            _mainForm.SignalGenerator.OnSignalGeneratorChanged +=
+                (SignalGeneratorControl.AOTypeEnum AOType, double AO_Amplitude, int AO_Period, int AO_Iterations, int AO_WaveType, bool isStart) =>
                 {
-                    OnSignalGeneratorChanged(AO_Amplitude, AO_Period, AO_Iterations, AO_WaveType, isStart);
+                    OnSignalGeneratorChanged(AOType, AO_Amplitude, AO_Period, AO_Iterations, AO_WaveType, isStart);
                 };
+
+            _mainForm.SignalGenerator.GetAOMaximum +=
+               (SignalGeneratorControl.AOTypeEnum AOType) =>
+               {
+                   return OnSignalGeneratorGetMaximumRange(AOType);
+               };
 
             _settingsForm = new SettingsForm();
             _settingsForm.OnSettingsSaved += () => OnSettingsSaved();
@@ -63,7 +77,7 @@ namespace LSS_Host_Module.UI
         {
             _UIContext.Send((object state) =>
             {
-                _mainForm.AO_ON = isOn;
+                _mainForm.SignalGenerator.AO_ON = isOn;
             }, null); 
         }
 

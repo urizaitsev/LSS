@@ -13,6 +13,14 @@ namespace LSS_Host_Module.Data
         public DataMain()
         {
             Data = new AppSettings();
+            try
+            {
+                Data = Data.Load();
+            }
+            catch(Exception)
+            {
+                Data.Save();
+            }
         }
 
         public void Init()
@@ -27,7 +35,7 @@ namespace LSS_Host_Module.Data
 
         public void SaveData()
         {
-
+            Data.Save();
         }
     }
 }

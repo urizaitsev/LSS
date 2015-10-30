@@ -26,6 +26,7 @@ namespace LSS_Host_Module.Manager
         }
 
         private Task _keepAliveTask { get; set; }
+        private Task _OnConnectedTask { get; set; }
         private bool _isClosing { get; set; }
         private SerialPort _serialPort { get; set; }
         private ManualResetEvent _communicationLock;
@@ -42,55 +43,26 @@ namespace LSS_Host_Module.Manager
 
         public void Open(string port)
         {
-            _isClosing = false;
-            IsConnected = false;
-            //check if port is opened
-            if (_serialPort.IsOpen)
-            {
-                throw new ApplicationException("Failed to open serial port, it is already being used");
-            }
-
-            //try to open
-            try
-            {
-                _serialPort.PortName = port;
-                _serialPort.Open();
-            }
-            catch(Exception ex)
-            {
-                throw new ApplicationException("Failed to open serial port", ex);
-            }
-
-            //get version
-            Version version;
-            DateTime dateTime;
-            GerVersion(out version, out dateTime);
-
-            //start keep-alive thread
-            _keepAliveTask = Task.Factory.StartNew(
-            () =>
-            {
-                do
+            _OnConnectedTask = Task.Factory.StartNew(() =>
                 {
-                    try
+                    do
                     {
-                        Ping();
-                        bool oldConnectedStatus = IsConnected;
-                        IsConnected = true;
-                        if (oldConnectedStatus != IsConnected)
-                            OnConnectionStatusChanged(IsConnected);
-                        Thread.Sleep(1000);
-                    }
-                    catch (Exception)
-                    {
-                        bool oldConnectedStatus = IsConnected;
-                        IsConnected = false;
-                        if (oldConnectedStatus != IsConnected)
-                            OnConnectionStatusChanged(IsConnected);
-                    }
-                } while (!_isClosing);
-                
-            });
+                        try
+                        {
+                            Thread.Sleep(1000);
+                            if (!IsConnected)
+                            {
+                                TryOpen(port);
+                            }
+                        }
+                        catch(Exception)
+                        {
+                            OnConnectionStatusChanged(false);
+                            Thread.Sleep(5000);
+                        }
+                        
+                    } while (!_isClosing);
+                });
         }
 
         public void Close()
@@ -98,7 +70,11 @@ namespace LSS_Host_Module.Manager
             if (_serialPort.IsOpen)
                 _serialPort.Close();
             _isClosing = true;
-            _keepAliveTask.Wait(2000);
+
+            if (_OnConnectedTask != null)
+                _OnConnectedTask.Wait(10000);
+            if (_keepAliveTask != null)
+                _keepAliveTask.Wait(2000);
         }
 
         public void GerVersion(out Version version, out DateTime dateTime)
@@ -131,6 +107,59 @@ namespace LSS_Host_Module.Manager
             iterations = (int)float.Parse(response[2]);
             wave_type = (int)float.Parse(response[3]);
             isON =      float.Parse(response[4]) > 0 ? true : false;
+        }
+
+        private void TryOpen(string port)
+        {
+            _isClosing = false;
+            IsConnected = false;
+            //check if port is opened
+            if (_serialPort.IsOpen)
+            {
+                throw new ApplicationException("Failed to open serial port, it is already being used");
+            }
+
+            //try to open
+            try
+            {
+                _serialPort.PortName = port;
+                _serialPort.Open();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Failed to open serial port", ex);
+            }
+
+            //get version
+            Version version;
+            DateTime dateTime;
+            GerVersion(out version, out dateTime);
+
+            //start keep-alive thread
+            _keepAliveTask = Task.Factory.StartNew(
+            () =>
+            {
+                do
+                {
+                    try
+                    {
+                        Ping();
+                        bool oldConnectedStatus = IsConnected;
+                        IsConnected = true;
+                        if (oldConnectedStatus != IsConnected)
+                            OnConnectionStatusChanged(IsConnected);
+                        Thread.Sleep(1000);
+                    }
+                    catch (Exception)
+                    {
+                        bool oldConnectedStatus = IsConnected;
+                        IsConnected = false;
+                        if (oldConnectedStatus != IsConnected)
+                            OnConnectionStatusChanged(IsConnected);
+                    }
+                } while (!_isClosing);
+
+            });
         }
 
         private string[] WriteCommand(Commands command, float[] parameters)
