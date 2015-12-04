@@ -298,5 +298,10 @@ namespace LSS_Host_Module.UI
             }
             return string.Format("{0} {1}", value, units);
         }
+
+        private void comboBoxAOType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            labelAOValue.Text = GetAOLabel(AO_Amplitude);
+        }
     }
 }

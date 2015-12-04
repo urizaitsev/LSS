@@ -100,6 +100,7 @@
             this.comboBoxAOType.Name = "comboBoxAOType";
             this.comboBoxAOType.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAOType.TabIndex = 22;
+            this.comboBoxAOType.SelectedIndexChanged += new System.EventHandler(this.comboBoxAOType_SelectedIndexChanged);
             // 
             // checkBoxStartStop
             // 
