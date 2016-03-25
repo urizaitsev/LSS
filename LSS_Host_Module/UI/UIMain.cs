@@ -42,6 +42,22 @@ namespace LSS_Host_Module.UI
             }
         }
 
+        public int SelectedTabIndex
+        {
+            get
+            {
+                int selectedIndex = -1;
+                if (_UIContext != null)
+                {
+                    _UIContext.Send((object state) =>
+                    {
+                        selectedIndex = _mainForm.MainTab.SelectedIndex;
+                    }, null);
+                }
+                return selectedIndex;
+            }
+        }
+
         public event Action OnFileMenu_Exit = delegate { };
         public event Action OnFileMenu_Settings = delegate { };
         public event Action OnSettingsSaved = delegate { };
@@ -79,6 +95,38 @@ namespace LSS_Host_Module.UI
             {
                 _mainForm.SignalGenerator.AO_ON = isOn;
             }, null); 
+        }
+
+        public void TemperatureControlSetTemperature(double[] temperatures)
+        {
+            _UIContext.Post((object state) =>
+            {
+                _mainForm.TempSensor.Temperatures = temperatures;
+            }, null); 
+        }
+
+        public void TemperatureControlSetFPS(float FPS)
+        {
+            _UIContext.Post((object state) =>
+            {
+                _mainForm.TempSensor.FPS = FPS;
+            }, null);
+        }
+
+        public void TemperatureControlSetMaxTemp(double maxTemp)
+        {
+            _UIContext.Post((object state) =>
+            {
+                _mainForm.TempSensor.MaxTemp = maxTemp;
+            }, null);
+        }
+
+        public void TemperatureControlSetMinTemp(double minTemp)
+        {
+            _UIContext.Post((object state) =>
+            {
+                _mainForm.TempSensor.MinTemp = minTemp;
+            }, null);
         }
 
         public void Init()

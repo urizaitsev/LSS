@@ -22,6 +22,11 @@ namespace LSS_Host_Module.Manager
             Ping = 1,
             DAC_MCP4725_SignalGeneratorSetParams = 2,
             DAC_MCP4725_SignalGeneratorGetParams = 3,
+            Temp_MLX90621_SetParams = 4,
+            Temp_MLX90621_GetMaxTemperature = 5,
+            Temp_Loop_SetPID = 6,
+            Temp_Loop_Start = 7,
+            Temp_Loop_Stop = 8,
             Error = 255,
         }
 
@@ -30,6 +35,7 @@ namespace LSS_Host_Module.Manager
         private bool _isClosing { get; set; }
         private SerialPort _serialPort { get; set; }
         private ManualResetEvent _communicationLock;
+        private Object _lock;
 
         public event Action<bool> OnConnectionStatusChanged = delegate { };
         public bool IsConnected {get;set;}
@@ -39,6 +45,7 @@ namespace LSS_Host_Module.Manager
             _serialPort = new SerialPort();
             IsConnected = false;
             _communicationLock = new ManualResetEvent(true);
+            _lock = new object();
         }
 
         public void Open(string port)
@@ -109,6 +116,35 @@ namespace LSS_Host_Module.Manager
             isON =      float.Parse(response[4]) > 0 ? true : false;
         }
 
+        public void Temp_MLX90621_SetParams(int ROI_Size, int FullFramesGap)
+        {
+            string[] response = WriteCommand(Commands.Temp_MLX90621_SetParams, new float[2] { ROI_Size, FullFramesGap });
+        }
+
+        public void Temp_MLX90621_GetMaxTemperature(out int maxTemperature, out int maxTemperatureIndex, out float FPS)
+        {
+            string[] response = WriteCommand(Commands.Temp_MLX90621_GetMaxTemperature, new float[0]);
+            maxTemperature = (int)float.Parse(response[0]);
+            maxTemperatureIndex = (int)float.Parse(response[1]);
+            FPS = float.Parse(response[2]);
+        }
+
+        public void Temp_Loop_SetPID(float Kp, float Ki, float Kd)
+        {
+            string[] response = WriteCommand(Commands.Temp_Loop_SetPID, new float[3] { Kp, Ki, Kd });
+        }
+
+        public void Temp_Loop_Stop()
+        {
+            string[] response = WriteCommand(Commands.Temp_Loop_SetPID, new float[0] { });
+        }
+        
+        public void Temp_Loop_Start(int maxPreHeatTime, float preHeatRate, float targetTemp, int dwellTime, float targetTempTolerance)
+        {
+            string[] response = WriteCommand(Commands.Temp_Loop_Start, new float[5] { maxPreHeatTime, preHeatRate, targetTemp, dwellTime, targetTempTolerance });
+        }
+ 
+
         private void TryOpen(string port)
         {
             _isClosing = false;
@@ -166,28 +202,31 @@ namespace LSS_Host_Module.Manager
         {
             try
             {
-                _communicationLock.WaitOne(cnstTimeOut);
-                _communicationLock.Reset();
-                if (!_serialPort.IsOpen)
-                    throw new ApplicationException("Failed to write command, serial port is disconnected");
+                lock (_lock)
+                {
+                    _communicationLock.WaitOne(cnstTimeOut);
+                    _communicationLock.Reset();
+                    if (!_serialPort.IsOpen)
+                        throw new ApplicationException("Failed to write command, serial port is disconnected");
 
-                int paramsCount = (parameters == null) ? 0 : parameters.Length;
-                string commandString = string.Format("{0}{1}{2}{3}", cnstSTX, (int)command, cnstRS, paramsCount);
-                if (paramsCount > 0)
-                {
-                    foreach (float parameter in parameters)
+                    int paramsCount = (parameters == null) ? 0 : parameters.Length;
+                    string commandString = string.Format("{0}{1}{2}{3}", cnstSTX, (int)command, cnstRS, paramsCount);
+                    if (paramsCount > 0)
                     {
-                        commandString += cnstRS;
-                        commandString += parameter.ToString();
+                        foreach (float parameter in parameters)
+                        {
+                            commandString += cnstRS;
+                            commandString += parameter.ToString();
+                        }
                     }
-                }
-                commandString += cnstETX;
-                do
-                {
-                    commandString += " ";
-                } while (commandString.Length < cnstMessageLength);
-                _serialPort.Write(commandString);
-                return ReadCommandResponce(command);
+                    commandString += cnstETX;
+                    do
+                    {
+                        commandString += " ";
+                    } while (commandString.Length < cnstMessageLength);
+                    _serialPort.Write(commandString);
+                    return ReadCommandResponce(command);
+                }  
             }
             catch(Exception ex)
             {

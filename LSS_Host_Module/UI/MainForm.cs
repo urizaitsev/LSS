@@ -29,12 +29,23 @@ namespace LSS_Host_Module.UI
             }
         }
 
+        public TempSensorArrayControl TempSensor
+        {
+            get
+            {
+                return tempSensorArrayControl;
+            }
+        }
+
         public event Action OnFileMenu_Exit = delegate { };
         public event Action OnFileMenu_Settings = delegate { };
 
         public MainForm()
         {
-            InitializeComponent();
+            if (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Runtime)
+            {
+                InitializeComponent();
+            }
         } 
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -45,6 +56,11 @@ namespace LSS_Host_Module.UI
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OnFileMenu_Exit();
+        }
+
+        private void buttonStartTempControl_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

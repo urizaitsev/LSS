@@ -16,11 +16,18 @@ namespace LSS_Host_Module.Data
         {
             HWController_PortName = "COM3";
             HWController_PollingInterval = 1000;
+
             LaserDriver_MaxControlVoltage = 5000;
             LaserDriver_MaxOutputCurrent = 180;
             LaserDiode_Ith = 4.62;
             LaserDiode_MaxCurrent = 56.34;
             LaserDiode_MaxPower = 56;
+
+            TemperatureSensor_Type = "MLX90621";
+            TemperatureSensor_MaxDisplay = 230;
+            TemperatureSensor_MinDisplay = 20;
+            TemperatureSensor_ROISize = 3;
+            TemperatureSensor_FullFrameGap = 30;
         }
 
         public string DataFileName
@@ -104,5 +111,40 @@ namespace LSS_Host_Module.Data
         [Category("Laser Diode")]
         [DisplayName("Maximum diode power")]
         public double LaserDiode_MaxPower { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Sensor type")]
+        [Category("Temperature sensor")]
+        [DisplayName("Type")]
+        public string TemperatureSensor_Type { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Maximum display temperature temperature")]
+        [Category("Temperature sensor")]
+        [DisplayName("Max temperature")]
+        public double TemperatureSensor_MaxDisplay { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Minimum display temperature temperature, [c]")]
+        [Category("Temperature sensor")]
+        [DisplayName("Min temperature")]
+        public double TemperatureSensor_MinDisplay { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Tracking ROI size, [elements]")]
+        [Category("Temperature sensor")]
+        [DisplayName("ROI size")]
+        public int TemperatureSensor_ROISize { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Gap between 2 ROI 2 full frames")]
+        [Category("Temperature sensor")]
+        [DisplayName("Full frame gap")]
+        public int TemperatureSensor_FullFrameGap { get; set; }
     }
 }

@@ -65,7 +65,7 @@ namespace LSS_Host_Module.UI
             }
             set
             {
-                if (System.ComponentModel.LicenseManager.UsageMode != System.ComponentModel.LicenseUsageMode.Designtime)
+                if ((System.ComponentModel.LicenseManager.UsageMode != System.ComponentModel.LicenseUsageMode.Designtime) && (comboBoxAOType.Items != null) && (comboBoxAOType.Items.Count > 0))
                 {
                     switch (value)
                     {

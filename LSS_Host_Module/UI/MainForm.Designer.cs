@@ -26,40 +26,148 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
+        private void 
+            InitializeComponent()
         {
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageIO = new System.Windows.Forms.TabPage();
+            this.tempSensorArrayControl = new LSS_Host_Module.UI.TempSensorArrayControl();
+            this.signalGeneratorControl = new LSS_Host_Module.UI.SignalGeneratorControl();
+            this.tabPageTempControl = new System.Windows.Forms.TabPage();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.signalGeneratorControl = new LSS_Host_Module.UI.SignalGeneratorControl();
+            this.buttonStartTempControl = new System.Windows.Forms.Button();
+            this.textBoxTempControlTargetTemp = new System.Windows.Forms.TextBox();
             this.tabControlMain.SuspendLayout();
             this.tabPageIO.SuspendLayout();
+            this.tabPageTempControl.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlMain
             // 
             this.tabControlMain.Controls.Add(this.tabPageIO);
+            this.tabControlMain.Controls.Add(this.tabPageTempControl);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Location = new System.Drawing.Point(0, 24);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(923, 453);
+            this.tabControlMain.Size = new System.Drawing.Size(923, 510);
             this.tabControlMain.TabIndex = 0;
             // 
             // tabPageIO
             // 
+            this.tabPageIO.Controls.Add(this.tempSensorArrayControl);
             this.tabPageIO.Controls.Add(this.signalGeneratorControl);
             this.tabPageIO.Location = new System.Drawing.Point(4, 22);
             this.tabPageIO.Name = "tabPageIO";
             this.tabPageIO.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageIO.Size = new System.Drawing.Size(915, 427);
+            this.tabPageIO.Size = new System.Drawing.Size(915, 484);
             this.tabPageIO.TabIndex = 0;
             this.tabPageIO.Text = "IO";
             this.tabPageIO.UseVisualStyleBackColor = true;
+            // 
+            // tempSensorArrayControl
+            // 
+            this.tempSensorArrayControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tempSensorArrayControl.Location = new System.Drawing.Point(430, 7);
+            this.tempSensorArrayControl.MaxTemp = 30D;
+            this.tempSensorArrayControl.MinTemp = 10D;
+            this.tempSensorArrayControl.Name = "tempSensorArrayControl";
+            this.tempSensorArrayControl.Size = new System.Drawing.Size(100, 429);
+            this.tempSensorArrayControl.TabIndex = 2;
+            this.tempSensorArrayControl.Temperatures = new double[] {
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN,
+        double.NaN};
+            // 
+            // signalGeneratorControl
+            // 
+            this.signalGeneratorControl.AO_Amplitude = 0D;
+            this.signalGeneratorControl.AO_Iterations = 1;
+            this.signalGeneratorControl.AO_ON = false;
+            this.signalGeneratorControl.AO_Period = 0;
+            this.signalGeneratorControl.AO_Type = LSS_Host_Module.UI.SignalGeneratorControl.AOTypeEnum.Voltage;
+            this.signalGeneratorControl.AO_WaveType = -1;
+            this.signalGeneratorControl.Location = new System.Drawing.Point(7, 7);
+            this.signalGeneratorControl.Name = "signalGeneratorControl";
+            this.signalGeneratorControl.Size = new System.Drawing.Size(400, 315);
+            this.signalGeneratorControl.TabIndex = 1;
+            // 
+            // tabPageTempControl
+            // 
+            this.tabPageTempControl.Controls.Add(this.textBoxTempControlTargetTemp);
+            this.tabPageTempControl.Controls.Add(this.buttonStartTempControl);
+            this.tabPageTempControl.Location = new System.Drawing.Point(4, 22);
+            this.tabPageTempControl.Name = "tabPageTempControl";
+            this.tabPageTempControl.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageTempControl.Size = new System.Drawing.Size(915, 484);
+            this.tabPageTempControl.TabIndex = 1;
+            this.tabPageTempControl.Text = "Temp. Control";
+            this.tabPageTempControl.UseVisualStyleBackColor = true;
             // 
             // menuStripMain
             // 
@@ -94,24 +202,29 @@
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
-            // signalGeneratorControl
+            // buttonStartTempControl
             // 
-            this.signalGeneratorControl.AO_Amplitude = 0;
-            this.signalGeneratorControl.AO_Iterations = 1;
-            this.signalGeneratorControl.AO_ON = false;
-            this.signalGeneratorControl.AO_Period = 0;
-            this.signalGeneratorControl.AO_Type = LSS_Host_Module.UI.SignalGeneratorControl.AOTypeEnum.Voltage;
-            this.signalGeneratorControl.AO_WaveType = -1;
-            this.signalGeneratorControl.Location = new System.Drawing.Point(7, 7);
-            this.signalGeneratorControl.Name = "signalGeneratorControl";
-            this.signalGeneratorControl.Size = new System.Drawing.Size(400, 315);
-            this.signalGeneratorControl.TabIndex = 1;
+            this.buttonStartTempControl.Location = new System.Drawing.Point(9, 7);
+            this.buttonStartTempControl.Name = "buttonStartTempControl";
+            this.buttonStartTempControl.Size = new System.Drawing.Size(75, 23);
+            this.buttonStartTempControl.TabIndex = 0;
+            this.buttonStartTempControl.Text = "Start";
+            this.buttonStartTempControl.UseVisualStyleBackColor = true;
+            this.buttonStartTempControl.Click += new System.EventHandler(this.buttonStartTempControl_Click);
+            // 
+            // textBoxTempControlTargetTemp
+            // 
+            this.textBoxTempControlTargetTemp.Location = new System.Drawing.Point(90, 9);
+            this.textBoxTempControlTargetTemp.Name = "textBoxTempControlTargetTemp";
+            this.textBoxTempControlTargetTemp.Size = new System.Drawing.Size(78, 20);
+            this.textBoxTempControlTargetTemp.TabIndex = 1;
+            this.textBoxTempControlTargetTemp.Text = "200";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(923, 477);
+            this.ClientSize = new System.Drawing.Size(923, 534);
             this.Controls.Add(this.tabControlMain);
             this.Controls.Add(this.menuStripMain);
             this.MainMenuStrip = this.menuStripMain;
@@ -120,6 +233,8 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.tabControlMain.ResumeLayout(false);
             this.tabPageIO.ResumeLayout(false);
+            this.tabPageTempControl.ResumeLayout(false);
+            this.tabPageTempControl.PerformLayout();
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();
             this.ResumeLayout(false);
@@ -136,6 +251,10 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private SignalGeneratorControl signalGeneratorControl;
+        private TempSensorArrayControl tempSensorArrayControl;
+        private System.Windows.Forms.TabPage tabPageTempControl;
+        private System.Windows.Forms.Button buttonStartTempControl;
+        private System.Windows.Forms.TextBox textBoxTempControlTargetTemp;
     }
 }
 

@@ -3,6 +3,7 @@ using LSS_Host_Module.Manager;
 using LSS_Host_Module.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,11 +18,17 @@ namespace LSS_Host_Module.Flow
         public DataMain DataMainObject { get; set; }
         public ManagerMain ManagerMainObject { get; set; }
 
+        private Task _tempUpdateTask = null;
+
         public void Init()
         {
             DataMainObject.Init();
             ManagerMainObject.Init();
             UIMainObject.Init();
+
+            //set defaults
+            UIMainObject.TemperatureControlSetMaxTemp(DataMainObject.Data.TemperatureSensor_MaxDisplay);
+            UIMainObject.TemperatureControlSetMinTemp(DataMainObject.Data.TemperatureSensor_MinDisplay);
         }
 
         public void Close()
@@ -45,6 +52,40 @@ namespace LSS_Host_Module.Flow
 
             UIMainObject.OnSignalGeneratorChanged += UIMainObject_OnSignalGeneratorChanged;
             UIMainObject.OnSignalGeneratorGetMaximumRange += UIMainObject_OnSignalGeneratorGetMaximumRange;
+
+            _tempUpdateTask = Task.Factory.StartNew(
+                () =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    do
+                    {
+                        try
+                        {
+                            if (UIMainObject.SelectedTabIndex != 0)
+                            {
+                                Thread.Sleep(300);
+                                continue;
+                            }
+
+                            int maxTemp, maxTempIndex;
+                            float FPS;
+                            long callStart = sw.ElapsedMilliseconds;
+                            ManagerMainObject.HWControllerObject.Temp_MLX90621_GetMaxTemperature(out maxTemp, out maxTempIndex, out FPS);
+                            long callEnd = sw.ElapsedMilliseconds;
+                            double[] temps = new double[4 * 16];
+                            for (int i = 0; i < 64; i++)
+                                temps[i] = double.NaN;
+                            temps[maxTempIndex] = maxTemp;
+                            UIMainObject.TemperatureControlSetTemperature(temps);
+                            UIMainObject.TemperatureControlSetFPS(FPS);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    } while (true);
+                });
         }
 
         double UIMainObject_OnSignalGeneratorGetMaximumRange(SignalGeneratorControl.AOTypeEnum AOType)
@@ -90,7 +131,20 @@ namespace LSS_Host_Module.Flow
             }
 
             //send command to controller
-            ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorSetParams(DAC_Value, period, iterations, wave_type, isON);
+            bool commandSent = false;
+            do
+            {
+                try
+                {
+                    ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorSetParams(DAC_Value, period, iterations, wave_type, isON);
+                    commandSent = true;
+                }
+                catch(Exception)
+                {
+
+                }
+            } while (!commandSent);
+            
 
             //start/stop task
             if (isON)
@@ -98,19 +152,43 @@ namespace LSS_Host_Module.Flow
                 Task.Factory.StartNew(() =>
                 {
                     bool isCycleCompleted = false;
+                    DateTime lastLaserCommand = DateTime.Now;
                     do
                     {
                         try
                         {
-                            Thread.Sleep(1000);
-                            int ret_amplitude, ret_period, ret_iterations, ret_wave_type;
-                            bool ret_isON;
-                            ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorGetParams(out ret_amplitude, out ret_period, out ret_iterations, out ret_wave_type, out ret_isON);
-                            isCycleCompleted = !ret_isON;
+                            //get temperature
+                            /*
+                            try
+                            {
+                                int maxTemp, maxTempIndex;
+                                ManagerMainObject.HWControllerObject.Temp_MLX90621_GetMaxTemperature(out maxTemp, out maxTempIndex);
+                                double[] temps = new double[4 * 16];
+                                for (int i = 0; i < 64; i++)
+                                    temps[i] = double.NaN;
+                                temps[maxTempIndex] = maxTemp;
+                                UIMainObject.TemperatureControlSetTemperature(temps);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                            */
+
+                            TimeSpan timeSpan = DateTime.Now - lastLaserCommand;
+                            if (timeSpan.TotalMilliseconds > 1000)
+                            {
+                                //Thread.Sleep(1000);
+                                lastLaserCommand = DateTime.Now;
+                                int ret_amplitude, ret_period, ret_iterations, ret_wave_type;
+                                bool ret_isON;
+                                ManagerMainObject.HWControllerObject.DAC_MCP4725_SignalGeneratorGetParams(out ret_amplitude, out ret_period, out ret_iterations, out ret_wave_type, out ret_isON);
+                                isCycleCompleted = !ret_isON;
+                            }    
                         }
                         catch(Exception)
                         {
-                            isCycleCompleted = true;
+                            //isCycleCompleted = true;
                         }
                     } while (!isCycleCompleted);
 
@@ -129,6 +207,13 @@ namespace LSS_Host_Module.Flow
         void UIMainObject_OnSettingsSaved()
         {
             DataMainObject.SaveData();
+
+            //update online variables where applicable
+
+            //Temperature
+            UIMainObject.TemperatureControlSetMaxTemp(DataMainObject.Data.TemperatureSensor_MaxDisplay);
+            UIMainObject.TemperatureControlSetMinTemp(DataMainObject.Data.TemperatureSensor_MinDisplay);
+
         }
 
         void UIMainObject_OnFileMenu_Settings()
