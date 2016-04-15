@@ -54,6 +54,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -66,9 +67,12 @@
   <ItemGroup>
     <Compile Include="Data\AppSettings.cs" />
     <Compile Include="Data\DataMain.cs" />
+    <Compile Include="Data\TempLoopProfileSettings.cs" />
     <Compile Include="Flow\FlowMain.cs" />
     <Compile Include="Manager\AduinoBoard.cs" />
+    <Compile Include="Manager\ITempLoopController.cs" />
     <Compile Include="Manager\ManagerMain.cs" />
+    <Compile Include="Manager\SimulatedTempLoopController.cs" />
     <Compile Include="Resource1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -94,6 +98,12 @@
     </Compile>
     <Compile Include="UI\SignalGeneratorControl.Designer.cs">
       <DependentUpon>SignalGeneratorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TempLoopControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\TempLoopControl.Designer.cs">
+      <DependentUpon>TempLoopControl.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\TempSensorArrayControl.cs">
       <SubType>UserControl</SubType>
@@ -124,6 +134,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\SignalGeneratorControl.resx">
       <DependentUpon>SignalGeneratorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\TempLoopControl.resx">
+      <DependentUpon>TempLoopControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\TempSensorArrayControl.resx">
       <DependentUpon>TempSensorArrayControl.cs</DependentUpon>

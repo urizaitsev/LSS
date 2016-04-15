@@ -28,6 +28,10 @@ namespace LSS_Host_Module.Data
             TemperatureSensor_MinDisplay = 20;
             TemperatureSensor_ROISize = 3;
             TemperatureSensor_FullFrameGap = 30;
+
+            TemperatureLoop_PID_P = 30;
+            TemperatureLoop_PID_I = 10;
+            TemperatureLoop_PID_D = 0;
         }
 
         public string DataFileName
@@ -146,5 +150,26 @@ namespace LSS_Host_Module.Data
         [Category("Temperature sensor")]
         [DisplayName("Full frame gap")]
         public int TemperatureSensor_FullFrameGap { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("PID settings, P")]
+        [Category("Temperature loop")]
+        [DisplayName("P")]
+        public float TemperatureLoop_PID_P { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("PID settings, I")]
+        [Category("Temperature loop")]
+        [DisplayName("I")]
+        public float TemperatureLoop_PID_I { get; set; }
+
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("PID settings, D")]
+        [Category("Temperature loop")]
+        [DisplayName("D")]
+        public float TemperatureLoop_PID_D { get; set; }
     }
 }

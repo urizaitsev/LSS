@@ -19,6 +19,8 @@ namespace LSS_Host_Module.Flow
         public ManagerMain ManagerMainObject { get; set; }
 
         private Task _tempUpdateTask = null;
+        bool _tempLoopTaskCancellationSource = false;
+        private Task _tempLoopUpdateTask = null;
 
         public void Init()
         {
@@ -53,6 +55,8 @@ namespace LSS_Host_Module.Flow
             UIMainObject.OnSignalGeneratorChanged += UIMainObject_OnSignalGeneratorChanged;
             UIMainObject.OnSignalGeneratorGetMaximumRange += UIMainObject_OnSignalGeneratorGetMaximumRange;
 
+            UIMainObject.OnTempLoopStarted += UIMainObject_OnTempLoopStarted;
+
             _tempUpdateTask = Task.Factory.StartNew(
                 () =>
                 {
@@ -65,20 +69,21 @@ namespace LSS_Host_Module.Flow
                             if (UIMainObject.SelectedTabIndex != 0)
                             {
                                 Thread.Sleep(300);
-                                continue;
                             }
-
-                            int maxTemp, maxTempIndex;
-                            float FPS;
-                            long callStart = sw.ElapsedMilliseconds;
-                            ManagerMainObject.HWControllerObject.Temp_MLX90621_GetMaxTemperature(out maxTemp, out maxTempIndex, out FPS);
-                            long callEnd = sw.ElapsedMilliseconds;
-                            double[] temps = new double[4 * 16];
-                            for (int i = 0; i < 64; i++)
-                                temps[i] = double.NaN;
-                            temps[maxTempIndex] = maxTemp;
-                            UIMainObject.TemperatureControlSetTemperature(temps);
-                            UIMainObject.TemperatureControlSetFPS(FPS);
+                            else
+                            {
+                                int maxTemp, maxTempIndex;
+                                float FPS;
+                                long callStart = sw.ElapsedMilliseconds;
+                                ManagerMainObject.HWControllerObject.Temp_MLX90621_GetMaxTemperature(out maxTemp, out maxTempIndex, out FPS);
+                                long callEnd = sw.ElapsedMilliseconds;
+                                double[] temps = new double[4 * 16];
+                                for (int i = 0; i < 64; i++)
+                                    temps[i] = double.NaN;
+                                temps[maxTempIndex] = maxTemp;
+                                UIMainObject.TemperatureControlSetTemperature(temps);
+                                UIMainObject.TemperatureControlSetFPS(FPS);
+                            }
                         }
                         catch (Exception)
                         {
@@ -86,6 +91,65 @@ namespace LSS_Host_Module.Flow
                         }
                     } while (true);
                 });
+        }
+
+        void UIMainObject_OnTempLoopStarted(TempLoopProfileSettings profileSettings, bool isStarted)
+        {
+            if ((!isStarted) && (_tempLoopUpdateTask != null))
+            {
+                //stop controller
+                ManagerMainObject.TempLoopController.Stop();
+
+                //stop update task
+                _tempLoopTaskCancellationSource = true;
+                try
+                {
+                    _tempLoopUpdateTask.Wait(500);
+                }
+                catch(Exception)
+                {
+
+                }
+
+                _tempLoopUpdateTask = null;
+                return;
+            }
+            else
+            {
+                //start controller
+                ManagerMainObject.TempLoopController.SetPID(DataMainObject.Data.TemperatureLoop_PID_P, DataMainObject.Data.TemperatureLoop_PID_I, DataMainObject.Data.TemperatureLoop_PID_D);
+                ManagerMainObject.TempLoopController.Start(profileSettings.PreHeatTime, profileSettings.TargetTemperature, profileSettings.DwellTime, profileSettings.TemperatureTolerance);
+
+                //start update task
+                _tempLoopTaskCancellationSource = false;
+                _tempLoopUpdateTask = Task.Factory.StartNew(
+                () =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    do
+                    {
+                        try
+                        {
+                            if (UIMainObject.SelectedTabIndex != 1)
+                            {
+                                Thread.Sleep(300);
+                            }
+                            else
+                            {
+                                //update UI
+                                float temp, power;
+                                ManagerMainObject.TempLoopController.GetData(out temp, out power);
+                                UIMainObject.TemperatureLoopAddPoints(DateTime.Now, temp, power);
+                            }
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    } while (!_tempLoopTaskCancellationSource);
+                });
+            }
         }
 
         double UIMainObject_OnSignalGeneratorGetMaximumRange(SignalGeneratorControl.AOTypeEnum AOType)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LSS_Host_Module.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
@@ -64,6 +65,7 @@ namespace LSS_Host_Module.UI
 
         public event Action<SignalGeneratorControl.AOTypeEnum, double, int, int, int, bool> OnSignalGeneratorChanged = delegate { };
         public event Func<SignalGeneratorControl.AOTypeEnum, double> OnSignalGeneratorGetMaximumRange = delegate { return 1000; };
+        public event Action<TempLoopProfileSettings, bool> OnTempLoopStarted = delegate { };
 
         public UIMain()
         {
@@ -84,6 +86,12 @@ namespace LSS_Host_Module.UI
                {
                    return OnSignalGeneratorGetMaximumRange(AOType);
                };
+
+            _mainForm.TempLoop.OnStarted +=
+                (TempLoopProfileSettings profile, bool isON) =>
+                {
+                    OnTempLoopStarted(profile, isON);
+                };
 
             _settingsForm = new SettingsForm();
             _settingsForm.OnSettingsSaved += () => OnSettingsSaved();
@@ -126,6 +134,14 @@ namespace LSS_Host_Module.UI
             _UIContext.Post((object state) =>
             {
                 _mainForm.TempSensor.MinTemp = minTemp;
+            }, null);
+        }
+
+        public void TemperatureLoopAddPoints(DateTime timeStamp, double temp, double laser)
+        {
+            _UIContext.Post((object state) =>
+            {
+                _mainForm.TempLoop.AddTempData(timeStamp, temp, laser);
             }, null);
         }
 

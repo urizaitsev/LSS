@@ -37,6 +37,14 @@ namespace LSS_Host_Module.UI
             }
         }
 
+        public TempLoopControl TempLoop
+        {
+            get
+            {
+                return tempLoopControl;
+            }
+        }
+
         public event Action OnFileMenu_Exit = delegate { };
         public event Action OnFileMenu_Settings = delegate { };
 
@@ -56,11 +64,6 @@ namespace LSS_Host_Module.UI
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OnFileMenu_Exit();
-        }
-
-        private void buttonStartTempControl_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

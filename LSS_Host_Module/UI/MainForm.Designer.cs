@@ -31,15 +31,14 @@
         {
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageIO = new System.Windows.Forms.TabPage();
-            this.tempSensorArrayControl = new LSS_Host_Module.UI.TempSensorArrayControl();
-            this.signalGeneratorControl = new LSS_Host_Module.UI.SignalGeneratorControl();
             this.tabPageTempControl = new System.Windows.Forms.TabPage();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.buttonStartTempControl = new System.Windows.Forms.Button();
-            this.textBoxTempControlTargetTemp = new System.Windows.Forms.TextBox();
+            this.tempSensorArrayControl = new LSS_Host_Module.UI.TempSensorArrayControl();
+            this.signalGeneratorControl = new LSS_Host_Module.UI.SignalGeneratorControl();
+            this.tempLoopControl = new LSS_Host_Module.UI.TempLoopControl();
             this.tabControlMain.SuspendLayout();
             this.tabPageIO.SuspendLayout();
             this.tabPageTempControl.SuspendLayout();
@@ -68,6 +67,50 @@
             this.tabPageIO.TabIndex = 0;
             this.tabPageIO.Text = "IO";
             this.tabPageIO.UseVisualStyleBackColor = true;
+            // 
+            // tabPageTempControl
+            // 
+            this.tabPageTempControl.Controls.Add(this.tempLoopControl);
+            this.tabPageTempControl.Location = new System.Drawing.Point(4, 22);
+            this.tabPageTempControl.Name = "tabPageTempControl";
+            this.tabPageTempControl.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageTempControl.Size = new System.Drawing.Size(915, 484);
+            this.tabPageTempControl.TabIndex = 1;
+            this.tabPageTempControl.Text = "Temp. Control";
+            this.tabPageTempControl.UseVisualStyleBackColor = true;
+            // 
+            // menuStripMain
+            // 
+            this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuStripMain.Location = new System.Drawing.Point(0, 0);
+            this.menuStripMain.Name = "menuStripMain";
+            this.menuStripMain.Size = new System.Drawing.Size(923, 24);
+            this.menuStripMain.TabIndex = 1;
+            this.menuStripMain.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // tempSensorArrayControl
             // 
@@ -157,68 +200,13 @@
             this.signalGeneratorControl.Size = new System.Drawing.Size(400, 315);
             this.signalGeneratorControl.TabIndex = 1;
             // 
-            // tabPageTempControl
+            // tempLoopControl
             // 
-            this.tabPageTempControl.Controls.Add(this.textBoxTempControlTargetTemp);
-            this.tabPageTempControl.Controls.Add(this.buttonStartTempControl);
-            this.tabPageTempControl.Location = new System.Drawing.Point(4, 22);
-            this.tabPageTempControl.Name = "tabPageTempControl";
-            this.tabPageTempControl.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageTempControl.Size = new System.Drawing.Size(915, 484);
-            this.tabPageTempControl.TabIndex = 1;
-            this.tabPageTempControl.Text = "Temp. Control";
-            this.tabPageTempControl.UseVisualStyleBackColor = true;
-            // 
-            // menuStripMain
-            // 
-            this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuStripMain.Location = new System.Drawing.Point(0, 0);
-            this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(923, 24);
-            this.menuStripMain.TabIndex = 1;
-            this.menuStripMain.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.settingsToolStripMenuItem,
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            // 
-            // buttonStartTempControl
-            // 
-            this.buttonStartTempControl.Location = new System.Drawing.Point(9, 7);
-            this.buttonStartTempControl.Name = "buttonStartTempControl";
-            this.buttonStartTempControl.Size = new System.Drawing.Size(75, 23);
-            this.buttonStartTempControl.TabIndex = 0;
-            this.buttonStartTempControl.Text = "Start";
-            this.buttonStartTempControl.UseVisualStyleBackColor = true;
-            this.buttonStartTempControl.Click += new System.EventHandler(this.buttonStartTempControl_Click);
-            // 
-            // textBoxTempControlTargetTemp
-            // 
-            this.textBoxTempControlTargetTemp.Location = new System.Drawing.Point(90, 9);
-            this.textBoxTempControlTargetTemp.Name = "textBoxTempControlTargetTemp";
-            this.textBoxTempControlTargetTemp.Size = new System.Drawing.Size(78, 20);
-            this.textBoxTempControlTargetTemp.TabIndex = 1;
-            this.textBoxTempControlTargetTemp.Text = "200";
+            this.tempLoopControl.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.tempLoopControl.Location = new System.Drawing.Point(9, 7);
+            this.tempLoopControl.Name = "tempLoopControl";
+            this.tempLoopControl.Size = new System.Drawing.Size(853, 381);
+            this.tempLoopControl.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -234,7 +222,6 @@
             this.tabControlMain.ResumeLayout(false);
             this.tabPageIO.ResumeLayout(false);
             this.tabPageTempControl.ResumeLayout(false);
-            this.tabPageTempControl.PerformLayout();
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();
             this.ResumeLayout(false);
@@ -253,8 +240,7 @@
         private SignalGeneratorControl signalGeneratorControl;
         private TempSensorArrayControl tempSensorArrayControl;
         private System.Windows.Forms.TabPage tabPageTempControl;
-        private System.Windows.Forms.Button buttonStartTempControl;
-        private System.Windows.Forms.TextBox textBoxTempControlTargetTemp;
+        private TempLoopControl tempLoopControl;
     }
 }
 

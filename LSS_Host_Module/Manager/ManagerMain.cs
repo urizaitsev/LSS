@@ -10,11 +10,13 @@ namespace LSS_Host_Module.Manager
     public class ManagerMain
     {
 
-        public ArduinoBoard HWControllerObject { get; set; }
+        public ArduinoBoard HWControllerObject { get; private set; }
+        public ITempLoopController TempLoopController { get; private set; }
 
         public ManagerMain()
         {
             HWControllerObject = new ArduinoBoard();
+            TempLoopController = new SimulatedTempLoopController();
         }
 
         public void Init()
